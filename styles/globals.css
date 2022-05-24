@@ -6,4 +6,12 @@
   .icon {
     @apply w-6 rounded-sm cursor-pointer h-9 lg:w-9 lg:p-1 lg:hover:bg-gray-100;
   }
+
+  .postButtons {
+    @apply flex items-center p-2 space-x-1 text-sm font-semibold rounded-sm cursor-pointer hover:bg-gray-100;
+  }
+
+  .voteButtons {
+    @apply w-6 h-6 p-1 rounded-md hover:bg-gray-200;
+  }
 }

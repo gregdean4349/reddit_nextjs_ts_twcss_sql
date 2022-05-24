@@ -20,7 +20,7 @@ function Header() {
   const { data: session } = useSession()
 
   return (
-    <div className="sticky top-0 z-50 flex items-center px-4 py-2 bg-white shadow-sm">
+    <header className="sticky top-0 z-50 flex items-center px-4 py-2 bg-white shadow-sm">
       <div className="relative flex-shrink-0 w-20 h-10 cursor-pointer">
         <Image
           src="https://links.papareact.com/fqy"
@@ -99,7 +99,7 @@ function Header() {
           <p className="font-semibold text-green-400 underline">Sign In</p>
         </div>
       )}
-    </div>
+    </header>
   )
 }
 export default Header
