@@ -11,8 +11,8 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
     <ApolloProvider client={client}>
       <SessionProvider session={session}>
         <div className="h-screen overflow-y-scroll bg-slate-200">
-          <Toaster /> {/* React-Hot Toast */}
-          <Header /> {/* Header always at top of page */}
+          <Toaster />
+          <Header />
           <Component {...pageProps} />
         </div>
       </SessionProvider>

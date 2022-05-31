@@ -14,12 +14,6 @@ type Vote = {
   username: string
 }
 
-type Subreddit = {
-  created_at: string
-  id: number
-  topic: string
-}
-
 type Post = {
   body: string
   created_at: string
@@ -31,4 +25,10 @@ type Post = {
   votes: Vote[]
   comments: Comments[]
   subreddit: Subreddit[]
+}
+
+type Subreddit = {
+  created_at: string
+  id: number
+  topic: string
 }

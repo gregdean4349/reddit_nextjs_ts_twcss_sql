@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    @apply scrollbar-hide;
+  }
+}
+
 @layer components {
   .icon {
     @apply w-6 rounded-sm cursor-pointer h-9 lg:w-9 lg:p-1 lg:hover:bg-gray-100;

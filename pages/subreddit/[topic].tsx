@@ -22,10 +22,11 @@ function Subreddit() {
             <p className="text-sm text-gray-400">r/{topic}</p>
           </div>
         </div>
-        <div>
-          <PostBox />
-          <Feed />
-        </div>
+      </div>
+
+      <div className="max-w-5xl pb-16 mx-auto mt-5">
+        <PostBox subreddit={topic as string} />
+        <Feed topic={topic as string} />
       </div>
     </div>
   )

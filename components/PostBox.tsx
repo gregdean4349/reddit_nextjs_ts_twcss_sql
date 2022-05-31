@@ -9,6 +9,10 @@ import { GET_ALL_POSTS, GET_SUBREDDIT_BY_TOPIC } from '../graphql/queries'
 import client from '../apollo-client'
 import toast from 'react-hot-toast'
 
+type Props = {
+  subreddit?: string
+}
+
 type FormData = {
   postTitle: string
   postBody: string
@@ -16,15 +20,15 @@ type FormData = {
   subreddit: string
 }
 //* React Hook Form Example
-function PostBox() {
+function PostBox({ subreddit }: Props) {
   const { data: session } = useSession()
+  const [imageBoxOpen, setImageBoxOpen] = useState<Boolean>(false)
+
   //* Apollo Client - mutation add post
+  const [addSubreddit] = useMutation(ADD_SUBREDDIT)
   const [addPost] = useMutation(ADD_POST, {
     refetchQueries: [GET_ALL_POSTS, 'getPostList'],
   })
-  const [addSubreddit] = useMutation(ADD_SUBREDDIT)
-
-  const [imageBoxOpen, setImageBoxOpen] = useState<Boolean>(false)
 
   //* React Hook Form
   const {
@@ -37,7 +41,7 @@ function PostBox() {
 
   //* Handle form input, DB mutation, Toast notifications
   const onSubmit = handleSubmit(async (formData) => {
-    console.log(formData)
+    console.log('Fetching subreddit...')
     //* Display toast message
     const notification = toast.loading('Creating new post...')
 
@@ -49,10 +53,17 @@ function PostBox() {
       } = await client.query({
         query: GET_SUBREDDIT_BY_TOPIC,
         variables: {
-          topic: formData.subreddit,
+          //* Use props first, fallback to form
+          topic: subreddit || formData.subreddit,
         },
       })
+
       const subredditExists = getSubredditListByTopic.length > 0
+      console.log(
+        'Subreddits found with topic: ',
+        formData.subreddit,
+        getSubredditListByTopic
+      )
 
       if (!subredditExists) {
         //* Create subreddit...
@@ -81,7 +92,7 @@ function PostBox() {
           },
         })
 
-        console.log('New post created!', newPost)
+        console.log(newPost)
       } else {
         //* Use existing subreddit...
         console.log('Using existing subreddit!')
@@ -100,7 +111,7 @@ function PostBox() {
             username: session?.user?.name,
           },
         })
-        console.log('New post created!', newPost)
+        console.log(newPost)
       }
 
       //* After post is created, reset form...
@@ -110,16 +121,23 @@ function PostBox() {
       setValue('subreddit', '')
 
       //* Display Toast Notifications
-      toast.success('Post created!', { id: notification })
+      toast.success('New Post created!', {
+        id: notification,
+      })
     } catch (error) {
-      toast.error('Error creating post!', { id: notification })
+      toast.error('Error creating post!', {
+        id: notification,
+      })
     }
   })
+
+  console.log(subreddit)
+
   //* React-Hook-Form - watch for changes in form inputs
   return (
     <form
       onSubmit={onSubmit}
-      className="sticky z-50 p-2 bg-white border border-gray-300 rounded-md top-16"
+      className="sticky top-[56px] z-50 rounded-md border-2 border-red-200 bg-white p-2 lg:top-[66px]"
     >
       <div className="flex items-center space-x-3">
         {/* Avatar - Dicebear API  */}
@@ -130,11 +148,16 @@ function PostBox() {
           {...register('postTitle', { required: true })}
           disabled={!session}
           type="text"
-          className="flex-1 p-2 pl-5 rounded-md outline-none bg-gray-50"
+          className="flex-1 p-2 pl-5 rounded-md outline-none bg-gray-50 "
           placeholder={
-            session ? 'Create a post by entering a title.' : 'Sign In to post!'
+            session
+              ? subreddit
+                ? `Create a post in r/${subreddit}`
+                : 'Create a post by entering a title!'
+              : 'Sign In to post'
           }
         />
+
         <PhotographIcon
           onClick={() => setImageBoxOpen(!imageBoxOpen)}
           className={`h-6 cursor-pointer text-gray-300 ${
@@ -158,15 +181,17 @@ function PostBox() {
           </div>
 
           {/* Subreddit */}
-          <div className="flex items-center px-2">
-            <p className="min-w-[90px]">Subreddit:</p>
-            <input
-              {...register('subreddit', { required: true })}
-              className="flex-1 p-2 m-2 outline-none bg-blue-50"
-              type="text"
-              placeholder="i.e. r/reactjs"
-            />
-          </div>
+          {!subreddit && (
+            <div className="flex items-center px-2">
+              <p className="min-w-[90px]">Subreddit:</p>
+              <input
+                {...register('subreddit', { required: true })}
+                className="flex-1 p-2 m-2 outline-none bg-blue-50"
+                type="text"
+                placeholder="i.e. r/reactjs"
+              />
+            </div>
+          )}
 
           {/* Image */}
           {imageBoxOpen && (
