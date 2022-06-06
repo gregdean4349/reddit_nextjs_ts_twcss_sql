@@ -131,7 +131,7 @@ function PostBox({ subreddit }: Props) {
     }
   })
 
-  console.log(subreddit)
+  // console.log(subreddit)
 
   //* React-Hook-Form - watch for changes in form inputs
   return (

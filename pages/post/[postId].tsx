@@ -82,6 +82,7 @@ function PostPage() {
           />
 
           <button
+            disabled={!session}
             className="w-full p-3 mx-auto text-xl text-white bg-red-400 text-semibold rounded-2xl disabled:bg-gray-200"
             type="submit"
           >

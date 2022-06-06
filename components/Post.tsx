@@ -24,8 +24,9 @@ type Props = {
 
 function Post({ post }: Props) {
   const [vote, setVote] = useState<boolean>()
+  const { data: session } = useSession()
 
-  const { data, loading } = useQuery(GET_ALL_VOTES_BY_POST_ID, {
+  const { data, loading, error } = useQuery(GET_ALL_VOTES_BY_POST_ID, {
     variables: {
       post_id: post?.id,
     },
@@ -35,14 +36,9 @@ function Post({ post }: Props) {
     refetchQueries: [GET_ALL_VOTES_BY_POST_ID, 'getVotesByPostId'],
   })
 
-  const { data: session } = useSession()
-
-  // console.log(post.votes)
-  // console.log(data?.getVotesByPostId)
-
   useEffect(() => {
     const votes: Vote[] = data?.getVotesByPostId
-    console.log(votes)
+    // console.log(votes)
 
     //* Latest vote (as we sorted by newly created first in SQL query)
     //* Note: You could improve this by moving it to the original Query
@@ -52,6 +48,7 @@ function Post({ post }: Props) {
     )?.upvote
 
     setVote(vote)
+    // console.log('You have voted: ', vote)
   }, [data])
 
   const upVote = async (isUpvote: boolean) => {
@@ -60,12 +57,13 @@ function Post({ post }: Props) {
       return
     }
     if (vote && isUpvote) return
-
     if (vote === false && !upVote) return
 
     console.log('voting...', isUpvote)
 
-    await addVote({
+    const {
+      data: { insertVote: newVote },
+    } = await addVote({
       variables: {
         post_id: post?.id,
         username: session?.user?.name,
@@ -74,6 +72,24 @@ function Post({ post }: Props) {
     })
   }
 
+  const displayVotes = (data: any) => {
+    const votes: Vote[] = data?.getVotesByPostId
+    const displayNumber = votes?.reduce(
+      (total, vote) => (vote.upvote ? (total += 1) : (total -= 1)),
+      0
+    )
+
+    if (votes?.length === 0) return 0
+
+    if (displayNumber === 0) {
+      // Check last vote number
+      return votes[0]?.upvote ? 1 : -1
+    }
+
+    return displayNumber
+  }
+
+  //* Loading animation
   if (!post) {
     return (
       <div className="flex items-center justify-center w-full p-10 text-xl">
@@ -93,7 +109,7 @@ function Post({ post }: Props) {
               vote && 'text-red-400'
             }`}
           />
-          <p className="text-xs font-bold text-black">{post.votes.length}</p>
+          <p className="text-xs font-bold text-black">{displayVotes(data)}</p>
           <ArrowDownIcon
             onClick={() => upVote(false)}
             className={`voteButtons hover:text-blue-400 ${
